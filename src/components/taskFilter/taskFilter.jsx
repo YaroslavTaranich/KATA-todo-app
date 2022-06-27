@@ -1,14 +1,29 @@
-export default function TaskFilter() {
+export default function TaskFilter({ filter, onFilterSelect }) {
   return (
     <ul className="filters">
       <li>
-        <button className="selected">All</button>
+        <button
+          className={filter === "all" ? "selected" : ""}
+          onClick={() => onFilterSelect("all")}
+        >
+          All
+        </button>
       </li>
       <li>
-        <button>Active</button>
+        <button
+          className={filter === "active" ? "selected" : ""}
+          onClick={() => onFilterSelect("active")}
+        >
+          Active
+        </button>
       </li>
       <li>
-        <button>Completed</button>
+        <button
+          className={filter === "completed" ? "selected" : ""}
+          onClick={() => onFilterSelect("completed")}
+        >
+          Completed
+        </button>
       </li>
     </ul>
   );

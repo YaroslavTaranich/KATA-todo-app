@@ -1,11 +1,18 @@
 import TaskFilter from "../taskFilter";
 
-export default function Footer() {
+export default function Footer({
+  filter,
+  onFilterSelect,
+  clearCompleted,
+  itemsLeft,
+}) {
   return (
-    <footer class="footer">
-      <span class="todo-count">1 items left</span>
-      <TaskFilter />
-      <button class="clear-completed">Clear completed</button>
+    <footer className="footer">
+      <span className="todo-count">{itemsLeft} items left</span>
+      <TaskFilter filter={filter} onFilterSelect={onFilterSelect} />
+      <button className="clear-completed" onClick={() => clearCompleted()}>
+        Clear completed
+      </button>
     </footer>
   );
 }
