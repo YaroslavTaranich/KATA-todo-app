@@ -1,11 +1,28 @@
 import { Component } from "react";
 
+import PropTypes from "prop-types";
+
+import formatDistanceToNow from "date-fns/formatDistanceToNow";
+
 export default class Task extends Component {
+  static propTypes = {
+    id: PropTypes.number.isRequired,
+    taskState: PropTypes.string.isRequired,
+    description: PropTypes.string.isRequired,
+    created: PropTypes.number.isRequired,
+    onDelite: PropTypes.func.isRequired,
+    onComplite: PropTypes.func.isRequired,
+    onEdit: PropTypes.func.isRequired,
+    inputHandler: PropTypes.func.isRequired,
+    editSubmit: PropTypes.func.isRequired,
+  };
+
   render() {
     const {
       id,
       taskState,
       description,
+      created,
       onDelite,
       onComplite,
       onEdit,
@@ -45,7 +62,9 @@ export default class Task extends Component {
           />
           <label htmlFor={"task-" + id}>
             <span className="description">{description}</span>
-            <span className="created">created 17 seconds ago</span>
+            <span className="created">
+              created {formatDistanceToNow(created)}
+            </span>
           </label>
           <button
             className="icon icon-edit"

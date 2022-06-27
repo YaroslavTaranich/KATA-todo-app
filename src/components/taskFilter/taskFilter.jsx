@@ -1,3 +1,4 @@
+import PropTypes from "prop-types";
 export default function TaskFilter({ filter, onFilterSelect }) {
   return (
     <ul className="filters">
@@ -28,3 +29,13 @@ export default function TaskFilter({ filter, onFilterSelect }) {
     </ul>
   );
 }
+
+TaskFilter.defaultProps = {
+  filter: "all",
+  onFilterSelect: () => {},
+};
+
+TaskFilter.propTypes = {
+  filter: PropTypes.string,
+  onFilterSelect: PropTypes.func,
+};

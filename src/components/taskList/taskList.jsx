@@ -1,7 +1,17 @@
+import PropTypes from "prop-types";
 import { Component } from "react";
 import Task from "../task";
 
 export default class TaskList extends Component {
+  static defaultProps = {
+    filter: "all",
+  };
+
+  static propTypes = {
+    todos: PropTypes.array.isRequired,
+    filter: PropTypes.string,
+  };
+
   render() {
     const {
       todos,
@@ -33,7 +43,7 @@ export default class TaskList extends Component {
           onEdit={onEdit}
           inputHandler={inputHandler}
           editSubmit={editSubmit}
-          key={todo.id}
+          key={"task" + todo.id}
         />
       );
     });

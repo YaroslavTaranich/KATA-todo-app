@@ -1,5 +1,7 @@
 import TaskFilter from "../taskFilter";
 
+import PropTypes from "prop-types";
+
 export default function Footer({
   filter,
   onFilterSelect,
@@ -16,3 +18,13 @@ export default function Footer({
     </footer>
   );
 }
+
+Footer.defaultProps = {
+  clearCompleted: () => {},
+  itemsLeft: 0,
+};
+
+Footer.propTypes = {
+  clearCompleted: PropTypes.func,
+  itemsLeft: PropTypes.number,
+};

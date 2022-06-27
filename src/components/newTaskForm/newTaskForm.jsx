@@ -1,6 +1,12 @@
 import { Component } from "react";
 
+import PropTypes from "prop-types";
+
 export default class NewTaskForm extends Component {
+  static propTypes = {
+    addTask: PropTypes.func,
+  };
+
   state = {
     inputValue: "",
   };
@@ -15,9 +21,9 @@ export default class NewTaskForm extends Component {
   };
 
   inputHandler = (value) => {
-    this.setState(() => ({
+    this.setState({
       inputValue: value,
-    }));
+    });
   };
 
   render() {

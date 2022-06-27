@@ -4,13 +4,22 @@ import NewTaskForm from "../newTaskForm";
 import TaskList from "../taskList";
 
 export default class App extends Component {
-  newId = 10;
+  taskId = 1;
+
+  createTask = (description, taskState = "", id = this.taskId++) => {
+    return {
+      id,
+      taskState,
+      description,
+      created: Date.now(),
+    };
+  };
 
   state = {
     todos: [
-      { id: 1, taskState: "completed", description: "Completed task" },
-      { id: 2, taskState: "", description: "Editing task" },
-      { id: 3, taskState: "", description: "Active task" },
+      this.createTask("Completed task", "completed"),
+      this.createTask("Editing task", "editing"),
+      this.createTask("Active task", ""),
     ],
 
     taskFilter: "all",
@@ -19,10 +28,7 @@ export default class App extends Component {
   addTask = (description) => {
     this.setState(({ todos }) => {
       return {
-        todos: [
-          ...todos,
-          { id: this.newId++, taskState: "", description: description },
-        ],
+        todos: [...todos, this.createTask(description)],
       };
     });
   };
@@ -74,9 +80,9 @@ export default class App extends Component {
   };
 
   onFilterSelect = (selectedFilter) => {
-    this.setState(() => ({
+    this.setState({
       taskFilter: selectedFilter,
-    }));
+    });
   };
 
   clearCompleted = () => {
