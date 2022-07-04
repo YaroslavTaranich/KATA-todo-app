@@ -7,6 +7,7 @@ import TaskList from '../taskList'
 export default class App extends Component {
   constructor() {
     super()
+
     this.taskId = 1
 
     this.createTask = (description, taskState = '', id = this.taskId) => {
@@ -14,6 +15,7 @@ export default class App extends Component {
       return {
         id,
         taskState,
+
         description,
         created: Date.now(),
       }
