@@ -5,7 +5,7 @@ import Task from '../task'
 
 export default class TaskList extends Component {
   render() {
-    const { todos, onDelite, onComplite, onEdit, inputHandler, editSubmit, filter } = this.props
+    const { todos, onDelite, onComplite, onEdit, inputHandler, editSubmit, filter, timerUpdate } = this.props
 
     function filterTasks(tasks, taskFilter) {
       switch (taskFilter) {
@@ -27,6 +27,7 @@ export default class TaskList extends Component {
         inputHandler={inputHandler}
         editSubmit={editSubmit}
         key={todo.id}
+        timerUpdate={timerUpdate}
       />
     ))
 
@@ -39,6 +40,14 @@ TaskList.defaultProps = {
 }
 
 TaskList.propTypes = {
-  todos: PropTypes.arrayOf(PropTypes.objectOf(PropTypes.oneOfType([PropTypes.number, PropTypes.string]))).isRequired,
+  todos: PropTypes.arrayOf(
+    PropTypes.objectOf(
+      PropTypes.oneOfType([
+        PropTypes.number,
+        PropTypes.string,
+        PropTypes.objectOf(PropTypes.oneOfType([PropTypes.number])),
+      ])
+    )
+  ).isRequired,
   filter: PropTypes.string,
 }

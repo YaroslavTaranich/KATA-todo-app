@@ -8,16 +8,19 @@ export default class App extends Component {
   constructor() {
     super()
 
-    this.taskId = 1
+    this.taskId = 0
 
-    this.createTask = (description, taskState = '', id = this.taskId) => {
+    this.createTask = (description, taskState = '', min = 0, sec = 0) => {
       this.taskId += 1
       return {
-        id,
+        id: this.taskId,
         taskState,
-
         description,
         created: Date.now(),
+        time: {
+          min,
+          sec,
+        },
       }
     }
 
@@ -30,9 +33,9 @@ export default class App extends Component {
       taskFilter: 'all',
     }
 
-    this.addTask = (description) => {
+    this.addTask = (description, min, sec) => {
       this.setState(({ todos }) => ({
-        todos: [...todos, this.createTask(description)],
+        todos: [...todos, this.createTask(description, '', min, sec)],
       }))
     }
 
@@ -96,10 +99,33 @@ export default class App extends Component {
         todos: todos.filter((todo) => todo.taskState !== 'completed'),
       }))
     }
+
+    this.timerUpdate = (id) => {
+      this.setState(({ todos }) => {
+        const {
+          time: { min, sec },
+        } = todos.find((todo) => todo.id === id)
+        const newTime = { min, sec }
+        if (sec === 59) {
+          newTime.min = min + 1
+          newTime.sec = 0
+        } else {
+          newTime.sec += 1
+        }
+        return {
+          todos: todos.map((todo) => {
+            if (todo.id === id) return { ...todo, time: newTime }
+            return todo
+          }),
+        }
+      })
+    }
   }
 
   render() {
     const { todos, taskFilter } = this.state
+
+    // this.timerUpdate(2)
 
     return (
       <section className="todoapp">
@@ -116,6 +142,7 @@ export default class App extends Component {
             inputHandler={this.editInputHandler}
             editSubmit={this.editSubmit}
             filter={taskFilter}
+            timerUpdate={this.timerUpdate}
           />
           <Footer
             filter={taskFilter}
