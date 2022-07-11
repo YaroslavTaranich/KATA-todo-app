@@ -184,7 +184,7 @@ export default class App extends Component {
   render() {
     const { todos, taskFilter } = this.state
 
-    const itemsLeft = todos.allIds.filter((id) => todos.byId[id].isCompleted).length
+    const itemsLeft = todos.allIds.filter((id) => !todos.byId[id].isCompleted).length
 
     return (
       <section className="todoapp">
