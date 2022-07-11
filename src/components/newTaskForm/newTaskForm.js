@@ -1,9 +1,12 @@
-import { Component } from 'react'
+import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 
 export default class NewTaskForm extends Component {
   constructor(props) {
     super(props)
+
+    this.inputRef = React.createRef()
+
     this.state = {
       inputValue: '',
       min: '',
@@ -26,13 +29,18 @@ export default class NewTaskForm extends Component {
       const { addTask } = this.props
       const { inputValue, min, sec } = this.state
       e.preventDefault()
-      addTask(inputValue, min || 0, sec || 0)
+      addTask(inputValue, +min || 0, +sec || 0)
       this.setState(() => ({
         inputValue: '',
         min: '',
         sec: '',
       }))
+      this.inputRef.current.focus()
     }
+  }
+
+  componentDidMount() {
+    this.inputRef.current.focus()
   }
 
   render() {
@@ -45,6 +53,7 @@ export default class NewTaskForm extends Component {
           placeholder="What needs to be done?"
           value={inputValue}
           onChange={(e) => this.inputHandler(e.target.value)}
+          ref={this.inputRef}
         />
         <input
           className="new-todo-form__timer"

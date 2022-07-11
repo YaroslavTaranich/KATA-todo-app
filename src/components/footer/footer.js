@@ -1,12 +1,10 @@
 import PropTypes from 'prop-types'
 
-import TaskFilter from '../taskFilter'
-
-export default function Footer({ filter, onFilterSelect, clearCompleted, itemsLeft }) {
+export default function Footer({ clearCompleted, itemsLeft, children }) {
   return (
     <footer className="footer">
       <span className="todo-count">{itemsLeft} items left</span>
-      <TaskFilter filter={filter} onFilterSelect={onFilterSelect} />
+      {children}
       <button type="button" className="clear-completed" onClick={() => clearCompleted()}>
         Clear completed
       </button>

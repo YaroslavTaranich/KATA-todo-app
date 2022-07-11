@@ -2,89 +2,142 @@ import { Component } from 'react'
 
 import Footer from '../footer'
 import NewTaskForm from '../newTaskForm'
+import TaskFilter from '../taskFilter'
 import TaskList from '../taskList'
 
 export default class App extends Component {
   constructor() {
     super()
 
-    this.taskId = 0
+    this.taskId = 10
 
-    this.createTask = (description, taskState = '', min = 0, sec = 0) => {
-      this.taskId += 1
+    this.state = {
+      todos: {
+        byId: {
+          1: {
+            id: 1,
+            isCompleted: true,
+            isEditing: false,
+            description: 'Completed task',
+            inputValue: 'Completed task',
+            created: Date.now(),
+            timer: 0,
+          },
+          2: {
+            id: 2,
+            isCompleted: false,
+            isEditing: true,
+            description: 'One more task',
+            inputValue: 'One more task',
+            created: Date.now(),
+            timer: 120000,
+          },
+          3: {
+            id: 3,
+            isCompleted: false,
+            isEditing: false,
+            description: 'Active task',
+            inputValue: 'Active task',
+            created: Date.now(),
+            timer: 1000,
+          },
+        },
+        allIds: [1, 2, 3],
+      },
+      taskFilter: 'all',
+    }
+
+    this.createTask = (description, min = 0, sec = 0) => {
+      const id = this.taskId
+      const time = (min * 60 + sec) * 1000
       return {
-        id: this.taskId,
-        taskState,
-        description,
-        created: Date.now(),
-        time: {
-          min,
-          sec,
+        [id]: {
+          id,
+          isCompleted: false,
+          isEditing: false,
+          description,
+          inputValue: description,
+          created: Date.now(),
+          timer: time,
         },
       }
     }
 
-    this.state = {
-      todos: [
-        this.createTask('Completed task', 'completed'),
-        this.createTask('Editing task', 'editing'),
-        this.createTask('Active task', ''),
-      ],
-      taskFilter: 'all',
-    }
-
     this.addTask = (description, min, sec) => {
-      this.setState(({ todos }) => ({
-        todos: [...todos, this.createTask(description, '', min, sec)],
-      }))
-    }
-
-    this.onComplite = (id) => {
-      this.setState(({ todos }) => ({
-        todos: todos.map((todo) => {
-          if (id === todo.id) {
-            const taskState = todo.taskState === '' ? 'completed' : ''
-            return { ...todo, taskState }
-          }
-          return todo
-        }),
-      }))
-    }
-
-    this.onDelite = (id) => {
-      this.setState(({ todos }) => {
-        const index = todos.findIndex((todo) => todo.id === id)
+      this.setState(({ todos: { allIds, byId } }) => {
+        this.taskId += 1
         return {
-          todos: [...todos.slice(0, index), ...todos.slice(index + 1)],
+          todos: {
+            allIds: [...allIds, this.taskId],
+            byId: {
+              ...byId,
+              ...this.createTask(description, min, sec),
+            },
+          },
         }
       })
     }
 
-    this.onEdit = (id) => {
-      this.setState(({ todos }) => ({
-        todos: todos.map((todo) => {
-          if (todo.taskState === 'editing') return { ...todo, taskState: '' }
-          if (todo.id === id && todo.taskState !== 'completed') return { ...todo, taskState: 'editing' }
-          return todo
-        }),
+    this.toggleFlagById = (id, flag) => {
+      this.setState(({ todos, todos: { byId } }) => ({
+        todos: {
+          ...todos,
+          byId: {
+            ...byId,
+            [id]: { ...byId[id], [flag]: !byId[id][flag] },
+          },
+        },
       }))
+    }
+
+    this.stopEditing = () => {
+      this.setState(({ todos, todos: { allIds, byId } }) => ({
+        todos: {
+          ...todos,
+          byId: allIds.reduce((acc, id) => {
+            acc[id] = { ...byId[id], isEditing: false, inputValue: byId[id].description }
+            return acc
+          }, {}),
+        },
+      }))
+    }
+
+    this.onDelite = (deliteId) => {
+      this.setState(({ todos: { byId, allIds } }) => {
+        const newIds = allIds.filter((id) => id !== deliteId)
+        return {
+          todos: {
+            allIds: newIds,
+            byId: newIds.reduce((acc, id) => {
+              acc[id] = byId[id]
+              return acc
+            }, {}),
+          },
+        }
+      })
     }
 
     this.editInputHandler = (id, value) => {
-      this.setState(({ todos }) => ({
-        todos: todos.map((todo) => {
-          if (todo.id === id) return { ...todo, description: value }
-          return todo
-        }),
+      this.setState(({ todos, todos: { byId } }) => ({
+        todos: {
+          ...todos,
+          byId: {
+            ...byId,
+            [id]: { ...byId[id], inputValue: value },
+          },
+        },
       }))
     }
 
-    this.editSubmit = (id) => {
-      this.setState(({ todos }) => ({
-        todos: todos.map((todo) => {
-          if (todo.id === id) return { ...todo, taskState: '' }
-          return todo
-        }),
+    this.editSubmit = (id, value) => {
+      this.setState(({ todos, todos: { byId } }) => ({
+        todos: {
+          ...todos,
+          byId: {
+            ...byId,
+            [id]: { ...byId[id], description: value },
+          },
+        },
       }))
     }
 
@@ -95,37 +148,43 @@ export default class App extends Component {
     }
 
     this.clearCompleted = () => {
-      this.setState(({ todos }) => ({
-        todos: todos.filter((todo) => todo.taskState !== 'completed'),
-      }))
-    }
-
-    this.timerUpdate = (id) => {
-      this.setState(({ todos }) => {
-        const {
-          time: { min, sec },
-        } = todos.find((todo) => todo.id === id)
-        const newTime = { min, sec }
-        if (sec === 59) {
-          newTime.min = min + 1
-          newTime.sec = 0
-        } else {
-          newTime.sec += 1
-        }
+      this.setState(({ todos: { byId, allIds } }) => {
+        const notComplitedIds = allIds.filter((id) => !byId[id].isCompleted)
         return {
-          todos: todos.map((todo) => {
-            if (todo.id === id) return { ...todo, time: newTime }
-            return todo
-          }),
+          todos: {
+            allIds: notComplitedIds,
+            byId: notComplitedIds.reduce((acc, id) => {
+              acc[id] = byId[id]
+              return acc
+            }, {}),
+          },
         }
       })
     }
+
+    this.timerUpdate = (id) => {
+      this.setState(({ todos, todos: { byId } }) => ({
+        todos: {
+          ...todos,
+          byId: {
+            ...byId,
+            [id]: { ...byId[id], timer: byId[id].timer + 1000 },
+          },
+        },
+      }))
+    }
+  }
+
+  componentDidMount() {
+    document.addEventListener('click', (e) => {
+      if (e.target.tagName === 'HTML') this.stopEditing()
+    })
   }
 
   render() {
     const { todos, taskFilter } = this.state
 
-    // this.timerUpdate(2)
+    const itemsLeft = todos.allIds.filter((id) => todos.byId[id].isCompleted).length
 
     return (
       <section className="todoapp">
@@ -137,6 +196,7 @@ export default class App extends Component {
           <TaskList
             todos={todos}
             onComplite={this.onComplite}
+            toggleFlagById={this.toggleFlagById}
             onDelite={this.onDelite}
             onEdit={this.onEdit}
             inputHandler={this.editInputHandler}
@@ -144,12 +204,9 @@ export default class App extends Component {
             filter={taskFilter}
             timerUpdate={this.timerUpdate}
           />
-          <Footer
-            filter={taskFilter}
-            onFilterSelect={this.onFilterSelect}
-            clearCompleted={this.clearCompleted}
-            itemsLeft={todos.filter((todo) => todo.taskState !== 'completed').length}
-          />
+          <Footer clearCompleted={this.clearCompleted} itemsLeft={itemsLeft}>
+            <TaskFilter filter={taskFilter} onFilterSelect={this.onFilterSelect} />
+          </Footer>
         </section>
       </section>
     )

@@ -1,6 +1,10 @@
 import { Component } from 'react'
 import PropTypes from 'prop-types'
 
+function addZero(num) {
+  const str = num.toString()
+  return str.length > 1 ? str : `0${str}`
+}
 export default class Timer extends Component {
   constructor(props) {
     super(props)
@@ -51,12 +55,12 @@ export default class Timer extends Component {
   }
 
   render() {
-    const { min, sec } = this.props
+    const { timer } = this.props
 
-    function addZero(num) {
-      const str = num.toString()
-      return str.length > 1 ? str : `0${str}`
-    }
+    const time = new Date(timer)
+
+    const min = addZero(time.getMinutes())
+    const sec = addZero(time.getSeconds())
 
     return (
       <span className="description">
@@ -72,7 +76,7 @@ export default class Timer extends Component {
           aria-label="pause-timer"
           onClick={() => this.toggleTimer(false)}
         />
-        {`  ${addZero(min)}:${addZero(sec)} `}
+        {`  ${min}:${sec} `}
       </span>
     )
   }

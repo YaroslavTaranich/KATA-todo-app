@@ -1,37 +1,46 @@
-import PropTypes from 'prop-types'
 import { Component } from 'react'
+import PropTypes from 'prop-types'
+import formatDistanceToNow from 'date-fns/formatDistanceToNow'
 
 import Task from '../task'
+import Timer from '../timer'
 
 export default class TaskList extends Component {
   render() {
-    const { todos, onDelite, onComplite, onEdit, inputHandler, editSubmit, filter, timerUpdate } = this.props
+    const { todos, onDelite, toggleFlagById, inputHandler, editSubmit, filter, timerUpdate } = this.props
 
-    function filterTasks(tasks, taskFilter) {
+    function filterTasks(tasks, taskIds, taskFilter) {
       switch (taskFilter) {
         case 'active':
-          return tasks.filter((task) => task.taskState === '')
+          return taskIds.filter((id) => !tasks[id].isCompleted)
         case 'completed':
-          return tasks.filter((task) => task.taskState === 'completed')
+          return taskIds.filter((id) => tasks[id].isCompleted)
         default:
-          return tasks
+          return taskIds
       }
     }
 
-    const tasks = filterTasks(todos, filter).map((todo) => (
-      <Task
-        {...todo}
-        onDelite={onDelite}
-        onComplite={onComplite}
-        onEdit={onEdit}
-        inputHandler={inputHandler}
-        editSubmit={editSubmit}
-        key={todo.id}
-        timerUpdate={timerUpdate}
-      />
-    ))
+    const { byId, allIds } = todos
 
-    return <ul className="todo-list">{tasks} </ul>
+    const taskList = filterTasks(byId, allIds, filter).map((id) => {
+      const { description, timer, isCompleted, created } = byId[id]
+      return (
+        <Task
+          {...byId[id]}
+          onDelite={onDelite}
+          toggleFlagById={toggleFlagById}
+          inputHandler={inputHandler}
+          editSubmit={editSubmit}
+          key={id}
+        >
+          <span className="title">{description}</span>
+          <Timer id={id} timer={timer} timerUpdate={timerUpdate} completed={isCompleted} />
+          <span className="description">created {formatDistanceToNow(created)}</span>
+        </Task>
+      )
+    })
+
+    return <ul className="todo-list">{taskList} </ul>
   }
 }
 
@@ -40,14 +49,13 @@ TaskList.defaultProps = {
 }
 
 TaskList.propTypes = {
-  todos: PropTypes.arrayOf(
-    PropTypes.objectOf(
-      PropTypes.oneOfType([
-        PropTypes.number,
-        PropTypes.string,
-        PropTypes.objectOf(PropTypes.oneOfType([PropTypes.number])),
-      ])
-    )
+  todos: PropTypes.objectOf(
+    PropTypes.oneOfType([
+      PropTypes.objectOf(
+        PropTypes.objectOf(PropTypes.oneOfType([PropTypes.number, PropTypes.string, PropTypes.bool, PropTypes.array]))
+      ),
+      PropTypes.arrayOf(PropTypes.number),
+    ])
   ).isRequired,
   filter: PropTypes.string,
 }
